@@ -1,0 +1,113 @@
+<template page>
+  <style>
+    :host {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    :host>* {
+      margin: 0 3px;
+    }
+
+    p {
+      margin: 0 20px !important;
+      line-height: 166px;
+      font-weight: bolder;
+      font-size: 50px;
+    }
+
+    .time {
+      width: 100%;
+      font-size: 30px;
+      font-weight: bold;
+      padding-left: 290px;
+      margin-top: 50px;
+    }
+  </style>
+  <l-m src="./lm-card.html"></l-m>
+
+  <lm-card :value="h"></lm-card>
+  <lm-card :value="hh"></lm-card>
+  <p>:</p>
+  <lm-card :value="m"></lm-card>
+  <lm-card :value="mm"></lm-card>
+  <p>:</p>
+  <lm-card :value="s"></lm-card>
+  <lm-card :value="ss"></lm-card>
+
+  <div class="time">{{ time }}</div>
+
+  <script>
+    function getStr(tar, num) {
+      let r = ''
+      let arr = tar.split(',')
+      if (arr.length > 1) {
+        if (arr.includes(String(num))) {
+          r = tar
+        } else {
+          arr.push(num)
+          arr.shift()
+          r = arr.toString()
+        }
+      } else {
+        r = `${num},${num}`
+      }
+      return r
+    }
+    export default {
+      data: {
+        ss: '', // 个位
+        s: '', // 十位
+        mm: '',
+        m: '',
+        hh: '',
+        h: '',
+        time: '',
+      },
+      proto: {
+        // window.requestAnimationFrame()
+
+        calc_time() {
+          const now = new Date()
+          const sec = now.getSeconds()
+          const min = now.getMinutes()
+          const hou = now.getHours()
+
+          this.time = `${hou} : ${min} : ${sec}`
+
+          const b_now = now
+          // 提前一秒 用来提前翻页
+          const a_now = now
+          a_now.setSeconds(sec - 1)
+          const a_sec = a_now.getSeconds()
+
+          // 秒 个位
+          this.ss = '' + (a_sec % 10) + ',' + (sec % 10)
+          // 秒 十位
+          const s_temp = Math.floor(sec / 10) // 提前一秒翻页
+          this.s = getStr(this.s, s_temp)
+
+          // 分 个位
+          const mm_temp = Math.floor(min % 10) // 提前一秒翻页
+          this.mm = getStr(this.mm, mm_temp)
+          // 分 十位
+          const m_temp = Math.floor(min / 10) // 提前一秒翻页
+          this.m = getStr(this.m, m_temp)
+
+          // 时 个位
+          const hh_temp = Math.floor(hou % 10) // 提前一秒翻页
+          this.hh = getStr(this.mm, hh_temp)
+          // 时 十位
+          const h_temp = Math.floor(hou / 10) // 提前一秒翻页
+          this.h = getStr(this.h, h_temp)
+
+          window.requestAnimationFrame(this.calc_time.bind(this))
+        }
+      },
+      attached() {
+        window.requestAnimationFrame(this.calc_time.bind(this))
+      }
+    }
+  </script>
+</template>
